@@ -1,0 +1,14 @@
+{
+  "name": "green-gis",
+  "version": "0.0.1",
+  "description": "A lite GIS JS API based on Canvas API.",
+  "dependencies": {
+    "typescript": "^4.1.3",
+    "webpack": "^5.11.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git"
+  },
+  "module": "esm2015/index.js"
+}
