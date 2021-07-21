@@ -3,7 +3,9 @@ import { Geometry } from "./geometry";
 export class Polygon extends Geometry {
   private _coordinates: number[][][]
 
+  // 考虑环的情况的多边形
   constructor(coordinates: number[][][]) {
+    super()
     this._coordinates = coordinates
   }
 

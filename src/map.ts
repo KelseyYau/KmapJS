@@ -80,6 +80,44 @@ export class Map {
   }
 
   _onWheel(event) {
+    event.preventDefault()
+    let scale = 1
+    const sensitivity = 100
+    const delta = event.deltaY / sensitivity
+    if (delta < 0) {
+      // 鼠标放大
+      scale *= delta * -2
+    } else {
+      // 鼠标缩小
+      scale /= delta * 2
+    }
 
+    // 交互效果：鼠标当前位置 屏幕坐标不变情况下进行缩放  即 x2 = x1
+    
+    // 第一种方案，坐标系不变，变坐标的值来实现
+    // 1. 将屏幕坐标 x1 转换成初始的坐标 x0 = (x1 - e1) * a1  初始的矩阵(1,0,0,1,0,0)   e1  a1 所代表是 距离尺度 和 比例尺度吗？
+    //2.初始坐标x0 转成 现屏幕坐标x2  a2 * x0 + e2 = x2    e2 = x2 - a2 * x0  代入1式 e2 = x2 - a2 * (x1 - e1) / a1
+    //3.已知scale = a2 / a1  故 e2 = x2 - scale * (x1 - e1)
+    //4.另矩阵变换 a1 * e + e1 = e2
+    //5.联立3和4  求得 e = (x2 - scale * (x1 - e1) - e1) / a1
+
+    //PS: 第4点详解: matrix1 * matrix = matrix2；matrix1当前矩阵，matrix2为变换后的结果矩阵，matrix为变换矩阵；我们现在要求matrix的e，而根据矩阵计算，a1 * e + e1 = e2。其中a1是matrix1的a，e是matrix的e，e1是matrix1的e，e2是matrix2的e。
+    const matrix = (this._ctx as any).getTransform();
+    const a1 = matrix.a, e1 = matrix.e, x1 = event.x, x2 = x1; //放大到中心点 x2 = this._canvas.width / 2
+    const e = (x2 - scale * (x1 - e1) - e1) / a1;
+    const d1 = matrix.d, f1 = matrix.f, y1 = event.y, y2 = y1; //放大到中心点 y2 = this._canvas.height / 2
+    const f = (y2 - scale * (y1 - f1) - f1) / d1;
+    this._ctx.transform( scale, 0, 0, scale, e, f );
+
+    this.redraw();
+  }
+  
+
+  destroy() {
+    this._canvas.removeEventListener("dblclick", this._onDoubleClick)
+    this._canvas.removeEventListener("mousedown", this._onMouseDown)
+    this._canvas.removeEventListener("mousemove", this._onMouseMove)
+    this._canvas.removeEventListener("mouseup", this._onMouseUp)
+    this._canvas.removeEventListener("wheel", this._onWheel)
   }
 }
